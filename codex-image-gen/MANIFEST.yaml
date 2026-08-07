@@ -3,6 +3,6 @@ beneva_skill:
   id: codex-image-gen
   name: codex-image-gen
   type: tool
-  purpose: 调用本地 Codex 命令行，驱动 gpt-image-2 生成图片，处理额度与限频。
+  purpose: 基于本地 Codex CLI（驱动 gpt-image-2 / gpt-5.4-mini）进行高质图像生成，处理额度与限频重试。
   required_scripts:
     - scripts/codex_image_gen.py

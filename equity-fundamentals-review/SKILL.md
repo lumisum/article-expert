@@ -1,6 +1,6 @@
 ---
 name: equity-fundamentals-review
-description: Conduct senior-level, evidence-backed fundamental analysis of public companies from annual and quarterly reports, prospectuses, earnings-call transcripts, investor presentations, and SEC filings. Use when asked to read, compare, summarize, or form an investment research view on a listed company, its business quality, growth durability, financial statements, valuation context, risks, catalysts, or industry implications.
+description: 资深证券基本面与财报高级审读技能（Equity Fundamentals Review）。面向美股（SEC 10-K/10-Q）、A股（巨潮 CNINFO）等上市公司的财报、招股书、业绩电话会及公告，进行审计级研究判断。严格区分“事实、管理层表述、分析推理”，拆解商业模式、增长质量、现金流转换及竞争风险，输出带五色视觉信号系统（🟢🔴🟡🔵⚪）的专业研报。
 ---
 
 # Equity Fundamentals Review

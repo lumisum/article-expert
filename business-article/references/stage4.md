@@ -106,7 +106,7 @@ HTML转换器负责移除DATA标记。
 先写`article/final_article.md`，再运行：
 
 ```bash
-python skills/businvet-article/scripts/markdown_to_wechat_html.py --topic-dir /absolute/topic/path
+python skills/business-article/scripts/markdown_to_wechat_html.py --topic-dir /absolute/topic/path
 ```
 
 生成唯一的`article/final_article_copy.html`：

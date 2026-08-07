@@ -67,10 +67,10 @@ def validate_out_dir(path: Path) -> Path:
         fail(
             "Stage runtime capture directories must belong to a concrete topic. "
             f"Invalid direct topics runtime path: {out_dir}. Use "
-            f"{root}/businvet_scans/[scan_id]/research/raw_pages/ for Stage 0 or "
+            f"{root}/business_scans/[scan_id]/research/raw_pages/ for Stage 0 or "
             f"{root}/topics/[topic_id]/research/raw_pages/ for Stage 1-3."
         )
-    if len(parts) == 1 and parts[0] in {"topics", "businvet_scans"}:
+    if len(parts) == 1 and parts[0] in {"topics", "business_scans"}:
         fail(f"--out-dir cannot be a workspace collection root: {out_dir}")
     return out_dir
 

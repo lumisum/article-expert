@@ -1,9 +1,9 @@
 ---
-name: businvet-article
-description: 仅适用于创作、改写、研究、编辑、排版或包装科技商业逻辑、公司业务模式、产业竞争、资本预期与业务投资判断类中文微信公众号文章；不用于中年人生、泛科技新闻、产品软文、荐股、具体买卖建议或技术操作教程。
+name: business-article
+description: 深度科技商业与业务投资分析类微信公众号文章创作技能。从科技事件与产业信号出发，深入拆解商业机制、变现路径、单位经济性（UE）、利润质量、竞争壁垒及资本预期。交付严谨客观的商业认知与验证框架（非个性化投资买卖建议）。纯技术实操请转tech-article。
 ---
 
-# businvet-article
+# business-article
 
 ## 目标
 
@@ -101,7 +101,7 @@ ${REAL_USER_HOME}/wechat_articles/topics/[topic_id]/
     └── stage7_receipt.json
 ```
 
-S0使用`${REAL_USER_HOME}/wechat_articles/businvet_scans/[scan_id]/`，不把候选扫描文件放进正式主题目录。
+S0使用`${REAL_USER_HOME}/wechat_articles/business_scans/[scan_id]/`，不把候选扫描文件放进正式主题目录。
 
 ## 执行纪律
 

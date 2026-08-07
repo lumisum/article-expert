@@ -174,7 +174,7 @@ def article_mode(topic_dir: Path) -> str:
         mode = str(profile.get("mode") or "").strip().lower()
         if mode and mode != "business_investment":
             fail(
-                "businvet-article only renders "
+                "business-article only renders "
                 "article_profile.mode=business_investment."
             )
     return "business_investment"

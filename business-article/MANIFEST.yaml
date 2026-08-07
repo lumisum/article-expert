@@ -1,6 +1,6 @@
-businvet_skill:
+business_skill:
   version: 6
-  id: businvet-article
+  id: business-article
   type: workflow
   execution_mode: phased
   phase_order: strict

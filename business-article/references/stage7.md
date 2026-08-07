@@ -129,7 +129,7 @@ video/audio/section_02.mp3
 
 运行：
 
-`python skills/businvet-article/scripts/validate_stage.py --stage 7 --topic-dir /absolute/topic/path`
+`python skills/business-article/scripts/validate_stage.py --stage 7 --topic-dir /absolute/topic/path`
 
 通过后，向用户明确列出`video/images/`所期待的图片ID。用户把同编号PNG、JPG、JPEG或WEBP放入该目录后，可直接把整个`video/`目录交给`narrated-video`：
 

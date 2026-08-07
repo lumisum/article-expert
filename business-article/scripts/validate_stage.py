@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic stage gates for the businvet-article workflow."""
+"""Deterministic stage gates for the business-article workflow."""
 
 from __future__ import annotations
 
@@ -1447,7 +1447,7 @@ def resolve_topic_dir(value: str | None) -> Path:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Validate a businvet-article stage.")
+    parser = argparse.ArgumentParser(description="Validate a business-article stage.")
     parser.add_argument("--stage", type=int, choices=range(0, 8), required=True)
     parser.add_argument("--topic-dir")
     parser.add_argument("--scan-dir")

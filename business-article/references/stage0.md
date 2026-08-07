@@ -24,11 +24,11 @@
 
 ## 输出
 
-写入`${REAL_USER_HOME}/wechat_articles/businvet_scans/[scan_id]/research/topic_candidates.json`：
+写入`${REAL_USER_HOME}/wechat_articles/business_scans/[scan_id]/research/topic_candidates.json`：
 
 ```json
 {
-  "scan_id": "businvet-...",
+  "scan_id": "business-...",
   "candidates": [
     {
       "id": "T01",

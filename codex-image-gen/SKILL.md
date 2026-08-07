@@ -1,6 +1,6 @@
 ---
 name: codex-image-gen
-description: 用于生成高质量的图片，支持自定义提示词、图片比例、保存路径、图片名称及执行模型。用于文章配图、社交媒体内容创作等场景。
+description: 基于本地 Codex CLI（驱动 gpt-image-2 / gpt-5.4-mini）的高质图像生成与配图构建技能。支持参数化定制提示词（Prompt）、画面比例（1:1、16:9、3:4 等）、文件名与保存路径。内置频控与额度重试机制，适用于微信公众号配图、封面图及社交视觉内容创作。
 beneva_skill_manifest: MANIFEST.yaml
 ---
 

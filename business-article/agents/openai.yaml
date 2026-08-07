@@ -1,4 +1,4 @@
 interface:
   display_name: "科技背后的商业逻辑"
   short_description: "借科技事件拆解利润形成、产业权力与资本回报"
-  default_prompt: "Use $businvet-article to turn a technology event into a Chinese WeChat article that explains the underlying economics, profit engine, value capture, industry power, and capital expectations."
+  default_prompt: "Use $business-article to turn a technology event into a Chinese WeChat article that explains the underlying economics, profit engine, value capture, industry power, and capital expectations."

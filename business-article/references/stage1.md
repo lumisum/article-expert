@@ -132,7 +132,7 @@
 使用预置脚本保存页面：
 
 ```bash
-python skills/businvet-article/scripts/cdp_capture_pages.py \
+python skills/business-article/scripts/cdp_capture_pages.py \
   --url https://primary-source.example/page \
   --out-dir /absolute/topic/research/raw_pages
 ```

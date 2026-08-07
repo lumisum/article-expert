@@ -1,6 +1,6 @@
 ---
 name: tech-article
-description: 仅适用于创作、研究、改写、编辑、排版或包装技术讲解与技术实操类中文微信公众号文章，包括AI、LLM、Agent、软件工程、开发工具、框架、API、基础设施、架构、排障和可复现教程；不用于科技商业投资判断、中年人生或一般非技术文章。
+description: 专业的技术类微信公众号文章全流程创作技能。覆盖 AI/LLM/Agent、软件工程、底层架构、API及开发工具的深度技术讲解（Technical Explainer）与可复现实操指南（Hands-on Playbook）。强调机制原理解析、精确版本锚定、真实施障排障路径及无死角代码/实操闭环。商业投资分析请转business-article。
 ---
 
 # tech-article
@@ -14,7 +14,7 @@ description: 仅适用于创作、研究、改写、编辑、排版或包装技�
 1. **技术讲解 `technical_explainer`**：解释一个模型、协议、框架、产品能力或工程机制怎样工作，帮助读者形成准确心智模型并作出技术选择。
 2. **实操抄作业 `hands_on_playbook`**：从真实目标、阻力、失败、修复、验证和优化出发，交付读者可以复现的实施路径。
 
-主题核心是公司业务模式、产业竞争、资本预期或业务投资判断时，使用`businvet-article`。主题核心是三十五岁以后的人生经历与认知时，使用`midlife-article`。一般非技术公众号文章使用`wechat-article`。
+主题核心是公司业务模式、产业竞争、资本预期或业务投资判断时，使用`business-article`。主题核心是三十五岁以后的人生经历与认知时，使用`midlife-article`。一般非技术公众号文章使用`wechat-article`。
 
 ## 核心标准
 
