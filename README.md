@@ -34,7 +34,7 @@
 
 ## 🧰 技能矩阵
 
-项目包含 7 大专业 Agent 技能模块，各司其职，无缝协作：
+项目包含 6 大专业 Agent 技能模块，各司其职，无缝协作：
 
 | 技能名称 (Skill ID) | 核心定位与适用场景 | 关键交付产物与特色 |
 | :--- | :--- | :--- |
@@ -43,7 +43,6 @@
 | 📊 [**`business-article`**](file:///Users/elonmar/GitHub/article-expert/business-article) | **科技商业与业务投资分析** | 深入拆解商业机制、变现路径、单位经济性（UE）、利润质量、竞争壁垒及资本预期（非买卖建议）。 |
 | 🕯️ [**`midlife-article`**](file:///Users/elonmar/GitHub/article-expert/midlife-article) | **中年人生认知与情感叙事** | 专注 35+ 人生经历（职业、代际、婚姻家庭、身体健康）。结合故事下潜与东西方哲学照明，拒绝流量焦虑。 |
 | 📈 [**`equity-fundamentals-review`**](file:///Users/elonmar/GitHub/article-expert/equity-fundamentals-review) | **美/A股上市公司基本面审读** | 面向 SEC EDGAR / 巨潮 CNINFO 官方财报与业绩会，提供审计级研究判断及五色视觉信号系统（🟢🔴🟡🔵⚪）。 |
-| 🎨 [**`codex-image-gen`**](file:///Users/elonmar/GitHub/article-expert/codex-image-gen) | **Codex 高质图像生成** | 基于本地 Codex CLI（驱动 `gpt-image-2` / `gpt-5.4-mini`），支持自定义 Prompt、比例（3:4/16:9）与自动重试。 |
 | 🎙️ [**`narrated-video`**](file:///Users/elonmar/GitHub/article-expert/narrated-video) | **画音同步纵向短视频合成** | 自动匹配编号配图与 Edge TTS 旁白语音，生成 0.6s 优雅交叉淡化转场与 3:4 纵向 MP4 成片。 |
 
 ---
@@ -72,7 +71,7 @@
 ## ⚡ 快速开始
 
 ### 1. 环境依赖
-确保本地安装 Python 3.10+、Codex CLI（如需图片生成）及 FFmpeg（如需视频合成）：
+确保本地安装 Python 3.10+ 及 FFmpeg（如需视频合成）：
 
 ```bash
 # 验证 Python 环境
