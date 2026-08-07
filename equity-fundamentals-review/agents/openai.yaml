@@ -1,0 +1,4 @@
+interface:
+  display_name: "上市公司基本面研读"
+  short_description: "资深视角解读财报、招股书、电话会与核心风险"
+  default_prompt: "Use $equity-fundamentals-review to analyse this listed company filing and produce an evidence-backed investment research brief."

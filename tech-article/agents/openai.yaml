@@ -1,0 +1,4 @@
+interface:
+  display_name: "科技分享公众号文章"
+  short_description: "把复杂技术讲透，并交付可复现、可排障、可优化的公众号文章"
+  default_prompt: "Use $tech-article to create a publishable Chinese WeChat technology article that readers can understand, reproduce, verify, and apply."
