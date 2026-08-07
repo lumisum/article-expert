@@ -99,7 +99,7 @@ python3 skills/business-article/scripts/validate_stage.py --stage 1 --topic-dir 
 
 <br>
 
-**👇 扫描上方二维码，关注公众号「文章专家」**
+**👇 扫描上方二维码，关注公众号「ElonMax」**
 
 *获取最新 AI Agent 深度洞察、排版实战干货与优质原创好文！*
 
