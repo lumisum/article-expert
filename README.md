@@ -34,7 +34,7 @@
 
 ## 🧰 技能矩阵
 
-项目包含 6 大专业 Agent 技能模块，各司其职，无缝协作：
+项目包含 7 大专业 Agent 技能模块，各司其职，无缝协作：
 
 | 技能名称 (Skill ID) | 核心定位与适用场景 | 关键交付产物与特色 |
 | :--- | :--- | :--- |
@@ -44,6 +44,7 @@
 | 🕯️ [**`midlife-article`**](file:///Users/elonmar/GitHub/article-expert/midlife-article) | **中年人生认知与情感叙事** | 专注 35+ 人生经历（职业、代际、婚姻家庭、身体健康）。结合故事下潜与东西方哲学照明，拒绝流量焦虑。 |
 | 📈 [**`equity-fundamentals-review`**](file:///Users/elonmar/GitHub/article-expert/equity-fundamentals-review) | **美/A股上市公司基本面审读** | 面向 SEC EDGAR / 巨潮 CNINFO 官方财报与业绩会，提供审计级研究判断及五色视觉信号系统（🟢🔴🟡🔵⚪）。 |
 | 🎙️ [**`narrated-video`**](file:///Users/elonmar/GitHub/article-expert/narrated-video) | **画音同步纵向短视频合成** | 自动匹配编号配图与 Edge TTS 旁白语音，生成 0.6s 优雅交叉淡化转场与 3:4 纵向 MP4 成片。 |
+| 🖼️ [**`video-cover`**](file:///Users/elonmar/GitHub/article-expert/video-cover) | **多平台视频封面提示词生成** | 复用人生、技术、商业三套视觉语法，以“60%放大真实场景 + 40%低密度微3D纲要”生成逐平台五字段精简 JSONL 提示词。 |
 
 ---
 

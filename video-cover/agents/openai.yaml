@@ -1,0 +1,4 @@
+interface:
+  display_name: "视频封面提示词生成"
+  short_description: "为主流视频平台生成仅含五字段的精简JSONL封面提示词文件"
+  default_prompt: "Use $video-cover to generate a minimal assets/video_cover_prompts.jsonl with platform, size, aspect ratio, core prompt points, and one complete prompt per row."
