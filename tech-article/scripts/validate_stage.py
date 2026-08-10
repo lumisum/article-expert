@@ -25,7 +25,7 @@ from path_utils import (
 
 
 CONTRACT_VERSION = 2
-IMAGE_PROMPT_VERSION = 3
+IMAGE_PROMPT_VERSION = 4
 COVER_PROMPT_VERSION = 3
 NARRATION_VERSION = 5
 VISUAL_PALETTE_PROFILE = "cool_porcelain_tech"
@@ -238,6 +238,9 @@ def stage_signature(topic_dir: Path, stage: int) -> str:
                 ),
                 "layout": article_layout_payload(
                     topic_dir / "article" / "final_article.md"
+                ),
+                "visual_system": file_hash(
+                    topic_dir / "assets" / "image_visual_system.json"
                 ),
                 "prompts": file_hash(topic_dir / "assets" / "image_prompts.jsonl"),
             }
@@ -877,6 +880,28 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     require_receipt(topic_dir, 4)
     markdown = (topic_dir / "article" / "final_article.md").read_text(encoding="utf-8")
     sections = markdown_sections(markdown)
+    visual_system = require_object(
+        load_json(topic_dir / "assets" / "image_visual_system.json"),
+        "image_visual_system.json",
+    )
+    for key in (
+        "version",
+        "information_visual_mode",
+        "selection_reason",
+        "article_visual_thesis",
+        "uniformity_rule",
+    ):
+        require_text(visual_system, key, "image_visual_system")
+    if visual_system["version"] != "article_information_visual_system_v1":
+        fail("image_visual_system.version must be article_information_visual_system_v1.")
+    visual_mode = visual_system["information_visual_mode"]
+    if visual_mode not in {"micro_3d_info_cards", "micro_3d_editorial_illustration"}:
+        fail("image_visual_system.information_visual_mode is invalid.")
+    signals = require_list(visual_system.get("selection_signals"), "image_visual_system.selection_signals")
+    if not 2 <= len(signals) <= 5 or any(
+        not isinstance(value, str) or not value.strip() for value in signals
+    ):
+        fail("image_visual_system.selection_signals must contain two to five non-empty strings.")
     prompts = load_jsonl(topic_dir / "assets" / "image_prompts.jsonl")
     if len(prompts) != len(sections):
         fail("Stage 5 needs exactly one prompt per major section.")
@@ -903,6 +928,8 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             fail(f"{owner}.layout_ratio must keep scene near 1/3 and information near 2/3.")
         for key in (
             "information_form",
+            "information_visual_mode",
+            "information_rendering",
             "article_context",
             "reader_action_or_observation",
             "scene_layer",
@@ -932,6 +959,25 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "prompt",
         ):
             require_text(item, key, owner)
+        if item["information_visual_mode"] != visual_mode:
+            fail(f"{owner}.information_visual_mode must match image_visual_system.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for key in (
+                "editorial_illustration_structure",
+                "editorial_metaphor",
+                "editorial_action",
+                "editorial_color_roles",
+            ):
+                require_text(item, key, owner)
+            if item["editorial_illustration_structure"] not in {
+                "action_metaphor",
+                "state_tableau",
+                "before_after_tableau",
+                "route_metaphor",
+                "layered_tableau",
+                "relationship_tableau",
+            }:
+                fail(f"{owner}.editorial_illustration_structure is invalid.")
         if item["scene_position"] != "top_third":
             fail(f"{owner}.scene_position must be top_third.")
         if item["information_position"] != "lower_two_thirds":
@@ -948,27 +994,55 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
                 f"{owner}.prompt must explicitly carry the tech background "
                 f"{VISUAL_BACKGROUND_HEX}."
             )
+        if visual_mode not in item["prompt"]:
+            fail(f"{owner}.prompt must explicitly carry {visual_mode}.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for required in ("微3D", "原创", "禁止固定角色", "富配色"):
+                if required not in item["prompt"]:
+                    fail(f"{owner}.prompt must include illustration constraint: {required}.")
         visual_elements = require_list(
             item.get("visual_elements"),
             f"{owner}.visual_elements",
         )
-        if not 7 <= len(visual_elements) <= 12 or any(
+        min_elements, max_elements = (
+            (7, 12)
+            if visual_mode == "micro_3d_info_cards"
+            else (4, 7)
+        )
+        if not min_elements <= len(visual_elements) <= max_elements or any(
             not isinstance(value, str) or not value.strip()
             for value in visual_elements
         ):
-            fail(f"{owner}.visual_elements must contain seven to twelve items.")
+            fail(
+                f"{owner}.visual_elements must contain {min_elements} to "
+                f"{max_elements} items for {visual_mode}."
+            )
         chinese_labels = require_list(
             item.get("chinese_labels"),
             f"{owner}.chinese_labels",
+            allow_empty=visual_mode == "micro_3d_editorial_illustration",
         )
-        if not 3 <= len(chinese_labels) <= 5 or any(
+        min_labels, max_labels = (
+            (3, 5)
+            if visual_mode == "micro_3d_info_cards"
+            else (0, 3)
+        )
+        if not min_labels <= len(chinese_labels) <= max_labels or any(
             not isinstance(value, str) or not value.strip()
             for value in chinese_labels
         ):
-            fail(f"{owner}.chinese_labels must contain three to five labels.")
+            fail(
+                f"{owner}.chinese_labels must contain {min_labels} to "
+                f"{max_labels} labels for {visual_mode}."
+            )
         colors = require_text_list(item, "supporting_colors", owner, minimum=3)
         if len(colors) > 4:
             fail(f"{owner}.supporting_colors must contain three or four colors.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for color in [item["accent_color"], *colors]:
+                match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
+                if match and match.group(0).upper() not in item["prompt"].upper():
+                    fail(f"{owner}.prompt must use illustration color {match.group(0)}.")
         if nonspace(item["prompt"]) <= 700:
             fail(f"{owner}.prompt must exceed 700 non-space characters.")
     if actual_ids != expected_ids:
@@ -976,6 +1050,7 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     return {
         "prompts": len(prompts),
         "aspect_ratio": "3:4",
+        "information_visual_mode": visual_mode,
         "image_prompt_version": IMAGE_PROMPT_VERSION,
     }
 

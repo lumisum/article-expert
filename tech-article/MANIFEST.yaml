@@ -1,5 +1,5 @@
 tech_article_skill:
-  version: 3
+  version: 4
   id: tech-article
   type: workflow
   execution_mode: phased

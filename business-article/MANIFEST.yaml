@@ -1,5 +1,5 @@
 business_skill:
-  version: 6
+  version: 7
   id: business-article
   type: workflow
   execution_mode: phased

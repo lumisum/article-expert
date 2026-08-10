@@ -19,7 +19,7 @@ from path_utils import ensure_topic_dir, expand_user_path
 
 
 CONTRACT_VERSION = 5
-IMAGE_PROMPT_VERSION = 3
+IMAGE_PROMPT_VERSION = 4
 COVER_PROMPT_VERSION = 3
 NARRATION_VERSION = 2
 VISUAL_PALETTE_PROFILE = "capital_paper_business"
@@ -202,6 +202,9 @@ def receipt_signature(topic_dir: Path, stage: int) -> str:
                 "image_prompt_version": IMAGE_PROMPT_VERSION,
                 "layout": stage5_layout_payload(
                     topic_dir / "article" / "final_article.md"
+                ),
+                "visual_system": file_hash(
+                    topic_dir / "assets" / "image_visual_system.json"
                 ),
                 "prompts": file_hash(topic_dir / "assets" / "image_prompts.jsonl"),
             }
@@ -988,6 +991,28 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     md_path = topic_dir / "article" / "final_article.md"
     markdown = md_path.read_text(encoding="utf-8")
     sections = markdown_sections(markdown)
+    visual_system = require_object(
+        load_json(topic_dir / "assets" / "image_visual_system.json"),
+        "image_visual_system.json",
+    )
+    for key in (
+        "version",
+        "information_visual_mode",
+        "selection_reason",
+        "article_visual_thesis",
+        "uniformity_rule",
+    ):
+        require_text(visual_system, key, "image_visual_system")
+    if visual_system["version"] != "article_information_visual_system_v1":
+        fail("image_visual_system.version must be article_information_visual_system_v1.")
+    visual_mode = visual_system["information_visual_mode"]
+    if visual_mode not in {"micro_3d_info_cards", "micro_3d_editorial_illustration"}:
+        fail("image_visual_system.information_visual_mode is invalid.")
+    signals = require_list(visual_system.get("selection_signals"), "image_visual_system.selection_signals")
+    if not 2 <= len(signals) <= 5 or any(
+        not isinstance(value, str) or not value.strip() for value in signals
+    ):
+        fail("image_visual_system.selection_signals must contain two to five non-empty strings.")
     markers = re.findall(r"<!--\s*IMAGE:(section_\d+)\s*-->", markdown)
     expected_ids = [f"section_{index:02d}" for index in range(1, len(sections) + 1)]
     if markers != expected_ids:
@@ -1026,6 +1051,8 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "background_material",
             "scene_layer",
             "information_question",
+            "information_visual_mode",
+            "information_rendering",
             "information_layer",
             "shared_anchor",
             "transition_plan",
@@ -1034,6 +1061,25 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "transition_perspective_plan",
         ):
             require_text(item, key, owner)
+        if item["information_visual_mode"] != visual_mode:
+            fail(f"{owner}.information_visual_mode must match image_visual_system.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for key in (
+                "editorial_illustration_structure",
+                "editorial_metaphor",
+                "editorial_action",
+                "editorial_color_roles",
+            ):
+                require_text(item, key, owner)
+            if item["editorial_illustration_structure"] not in {
+                "action_metaphor",
+                "state_tableau",
+                "before_after_tableau",
+                "route_metaphor",
+                "layered_tableau",
+                "relationship_tableau",
+            }:
+                fail(f"{owner}.editorial_illustration_structure is invalid.")
         if item["layout_ratio"] not in {
             "scene_30_info_70",
             "scene_33_info_67",
@@ -1056,6 +1102,12 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
                 f"{owner}.prompt must explicitly carry the business background "
                 f"{VISUAL_BACKGROUND_HEX}."
             )
+        if visual_mode not in item["prompt"]:
+            fail(f"{owner}.prompt must explicitly carry {visual_mode}.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for required in ("微3D", "原创", "禁止固定角色", "富配色"):
+                if required not in item["prompt"]:
+                    fail(f"{owner}.prompt must include illustration constraint: {required}.")
         accent = require_text(item, "accent_color", owner)
         if not re.search(r"#[0-9A-Fa-f]{6}\b", accent):
             fail(f"{owner}.accent_color must include a six-digit HEX value.")
@@ -1066,24 +1118,46 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             for value in supporting
         ):
             fail(f"{owner}.supporting_colors must contain three or four HEX colors.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for color in [accent, *supporting]:
+                match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
+                if match and match.group(0).upper() not in item["prompt"].upper():
+                    fail(f"{owner}.prompt must use illustration color {match.group(0)}.")
         visual_elements = require_list(
             item.get("visual_elements"),
             f"{owner}.visual_elements",
         )
-        if not 7 <= len(visual_elements) <= 11 or any(
+        min_elements, max_elements = (
+            (7, 11)
+            if visual_mode == "micro_3d_info_cards"
+            else (4, 7)
+        )
+        if not min_elements <= len(visual_elements) <= max_elements or any(
             not isinstance(value, str) or not value.strip()
             for value in visual_elements
         ):
-            fail(f"{owner}.visual_elements must contain seven to eleven items.")
+            fail(
+                f"{owner}.visual_elements must contain {min_elements} to "
+                f"{max_elements} items for {visual_mode}."
+            )
         chinese_labels = require_list(
             item.get("chinese_labels"),
             f"{owner}.chinese_labels",
+            allow_empty=visual_mode == "micro_3d_editorial_illustration",
         )
-        if not 2 <= len(chinese_labels) <= 5 or any(
+        min_labels, max_labels = (
+            (2, 5)
+            if visual_mode == "micro_3d_info_cards"
+            else (0, 3)
+        )
+        if not min_labels <= len(chinese_labels) <= max_labels or any(
             not isinstance(value, str) or not value.strip()
             for value in chinese_labels
         ):
-            fail(f"{owner}.chinese_labels must contain two to five labels.")
+            fail(
+                f"{owner}.chinese_labels must contain {min_labels} to "
+                f"{max_labels} labels for {visual_mode}."
+            )
         for key in (
             "article_context",
             "visual_thesis",
@@ -1114,12 +1188,14 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
         {
             "images": len(prompts),
             "visual_roles": role_counts,
+            "information_visual_mode": visual_mode,
             "image_prompt_version": IMAGE_PROMPT_VERSION,
         },
     )
     return {
         "images": len(prompts),
         "visual_roles": role_counts,
+        "information_visual_mode": visual_mode,
         "image_prompt_version": IMAGE_PROMPT_VERSION,
         "receipt": str(receipt),
     }

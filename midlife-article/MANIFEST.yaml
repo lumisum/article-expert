@@ -1,5 +1,5 @@
 midlife_skill:
-  version: 8
+  version: 9
   id: midlife-article
   type: workflow
   execution_mode: phased

@@ -23,7 +23,7 @@ from path_utils import ensure_topic_dir, expand_user_path
 CONTRACT_VERSION = 6
 RENDERER_VERSION = 6
 ARTICLE_CONTRACT_VERSION = 2
-IMAGE_PROMPT_VERSION = 6
+IMAGE_PROMPT_VERSION = 7
 COVER_PROMPT_VERSION = 5
 NARRATION_VERSION = 2
 VISUAL_PALETTE_PROFILE = "pearl_mist_midlife"
@@ -182,6 +182,9 @@ def receipt_signature(topic_dir: Path, stage: int) -> str:
                 "image_prompt_version": IMAGE_PROMPT_VERSION,
                 "layout": stage5_layout_payload(
                     topic_dir / "article" / "final_article.md"
+                ),
+                "visual_system": file_hash(
+                    topic_dir / "assets" / "image_visual_system.json"
                 ),
                 "prompts": file_hash(topic_dir / "assets" / "image_prompts.jsonl"),
             }
@@ -1251,6 +1254,28 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     md_path = topic_dir / "article" / "final_article.md"
     markdown = md_path.read_text(encoding="utf-8")
     sections = markdown_sections(markdown)
+    visual_system = require_object(
+        load_json(topic_dir / "assets" / "image_visual_system.json"),
+        "image_visual_system.json",
+    )
+    for key in (
+        "version",
+        "information_visual_mode",
+        "selection_reason",
+        "article_visual_thesis",
+        "uniformity_rule",
+    ):
+        require_text(visual_system, key, "image_visual_system")
+    if visual_system["version"] != "article_information_visual_system_v1":
+        fail("image_visual_system.version must be article_information_visual_system_v1.")
+    visual_mode = visual_system["information_visual_mode"]
+    if visual_mode not in {"micro_3d_info_cards", "micro_3d_editorial_illustration"}:
+        fail("image_visual_system.information_visual_mode is invalid.")
+    signals = require_list(visual_system.get("selection_signals"), "image_visual_system.selection_signals")
+    if not 2 <= len(signals) <= 5 or any(
+        not isinstance(value, str) or not value.strip() for value in signals
+    ):
+        fail("image_visual_system.selection_signals must contain two to five non-empty strings.")
     heading_matches = list(re.finditer(r"(?m)^##\s+(.+?)\s*$", markdown))
     marker_matches = list(
         re.finditer(r"<!--\s*IMAGE:(section_\d+)\s*-->", markdown)
@@ -1307,6 +1332,8 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "scene_layer",
             "information_question",
             "information_form",
+            "information_visual_mode",
+            "information_rendering",
             "information_layer",
             "layout_ratio",
             "scene_position",
@@ -1329,7 +1356,9 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "prompt",
         ):
             require_text(item, key, owner)
-        if item["information_form"] not in {
+        if require_text(item, "information_visual_mode", owner) != visual_mode:
+            fail(f"{owner}.information_visual_mode must match image_visual_system.")
+        if visual_mode == "micro_3d_info_cards" and item["information_form"] not in {
             "causal_chain",
             "before_after",
             "timeline",
@@ -1338,6 +1367,23 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "relationship_map",
         }:
             fail(f"{owner}.information_form is invalid.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for key in (
+                "editorial_illustration_structure",
+                "editorial_metaphor",
+                "editorial_action",
+                "editorial_color_roles",
+            ):
+                require_text(item, key, owner)
+            if item["editorial_illustration_structure"] not in {
+                "action_metaphor",
+                "state_tableau",
+                "before_after_tableau",
+                "route_metaphor",
+                "layered_tableau",
+                "relationship_tableau",
+            }:
+                fail(f"{owner}.editorial_illustration_structure is invalid.")
         if item["subject_profile"] != "attractive_intellectual_woman_28_35":
             fail(
                 f"{owner}.subject_profile must be "
@@ -1368,6 +1414,12 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
                 f"{owner}.prompt must explicitly carry the midlife background "
                 f"{VISUAL_BACKGROUND_HEX}."
             )
+        if visual_mode not in item["prompt"]:
+            fail(f"{owner}.prompt must explicitly carry {visual_mode}.")
+        if visual_mode == "micro_3d_editorial_illustration":
+            for required in ("微3D", "原创", "禁止固定角色", "富配色"):
+                if required not in item["prompt"]:
+                    fail(f"{owner}.prompt must include illustration constraint: {required}.")
         if not re.search(r"#[0-9A-Fa-f]{6}\b", item["accent_color"]):
             fail(f"{owner}.accent_color must include a six-digit HEX value.")
         supporting = require_list(
@@ -1382,6 +1434,11 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             fail(
                 f"{owner}.supporting_colors must contain three or four HEX colors."
             )
+        if visual_mode == "micro_3d_editorial_illustration":
+            for color in [item["accent_color"], *supporting]:
+                match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
+                if match and match.group(0).upper() not in item["prompt"].upper():
+                    fail(f"{owner}.prompt must use illustration color {match.group(0)}.")
         if nonspace(item["prompt"]) <= 700:
             fail(f"{owner}.prompt must exceed 700 non-whitespace characters.")
     write_wechat_html(topic_dir, quiet=True)
@@ -1391,12 +1448,14 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
         {
             "images": len(prompts),
             "hybrid_images": len(prompts),
+            "information_visual_mode": visual_mode,
             "image_prompt_version": IMAGE_PROMPT_VERSION,
         },
     )
     return {
         "images": len(prompts),
         "hybrid_images": len(prompts),
+        "information_visual_mode": visual_mode,
         "image_prompt_version": IMAGE_PROMPT_VERSION,
         "receipt": str(receipt),
     }
