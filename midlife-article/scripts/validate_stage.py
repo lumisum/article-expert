@@ -370,7 +370,6 @@ def validate_stage1(topic_dir: Path) -> dict[str, Any]:
     story_materials = require_list(
         blueprint.get("story_materials"),
         "midlife_blueprint.story_materials",
-        minimum=1,
     )
     material_basis: list[tuple[str, list[str]]] = []
     allowed_material_kinds = {
