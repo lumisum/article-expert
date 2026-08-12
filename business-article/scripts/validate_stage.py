@@ -20,7 +20,7 @@ from path_utils import ensure_topic_dir, expand_user_path
 
 CONTRACT_VERSION = 5
 IMAGE_PROMPT_VERSION = 4
-COVER_PROMPT_VERSION = 3
+COVER_PROMPT_VERSION = 4
 NARRATION_VERSION = 2
 VISUAL_PALETTE_PROFILE = "capital_paper_business"
 VISUAL_BACKGROUND_HEX = "#F2F1ED"
@@ -215,6 +215,7 @@ def receipt_signature(topic_dir: Path, stage: int) -> str:
                 "cover_prompt_version": COVER_PROMPT_VERSION,
                 "md": file_hash(topic_dir / "article" / "final_article.md"),
                 "package": file_hash(topic_dir / "assets" / "title_cover_package.json"),
+                "video_covers": file_hash(topic_dir / "assets" / "video_cover_prompts.jsonl"),
                 "digest": file_hash(topic_dir / "article" / "final_article_digest.txt"),
             }
         )
@@ -1201,6 +1202,50 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     }
 
 
+def validate_video_cover_prompts(topic_dir: Path, video_headline: str) -> int:
+    rows = load_jsonl(topic_dir / "assets" / "video_cover_prompts.jsonl")
+    required_rows = {
+        "微信视频号横版": ("1920x1080", "16:9"),
+        "今日头条横版": ("1920x1080", "16:9"),
+        "B站横版": ("1920x1080", "16:9"),
+    }
+    platforms: set[str] = set()
+    seen: set[tuple[str, str]] = set()
+    exact_fields = {"platform", "size", "aspect_ratio", "core_prompt_points", "prompt"}
+    for index, value in enumerate(rows):
+        owner = f"video_cover_prompts[{index}]"
+        item = require_object(value, owner)
+        if set(item) != exact_fields:
+            fail(f"{owner} must contain exactly the five video-cover fields.")
+        platform = require_text(item, "platform", owner)
+        size = require_text(item, "size", owner)
+        ratio = require_text(item, "aspect_ratio", owner)
+        prompt = require_text(item, "prompt", owner)
+        points = require_list(item.get("core_prompt_points"), f"{owner}.core_prompt_points")
+        if not 4 <= len(points) <= 8 or any(not isinstance(v, str) or not v.strip() for v in points):
+            fail(f"{owner}.core_prompt_points must contain four to eight strings.")
+        if platform in required_rows and (size, ratio) != required_rows[platform]:
+            fail(f"{owner} must use the canonical landscape size and ratio.")
+        joined_points = " ".join(points)
+        for token in ("50:50", "人物", "真实", "纲要", "隐喻", VISUAL_BACKGROUND_HEX):
+            if token not in joined_points:
+                fail(f"{owner}.core_prompt_points must include: {token}")
+        for token in ("50:50", "人物", "真实", "纲要", "隐喻", VISUAL_BACKGROUND_HEX, video_headline):
+            if token not in prompt:
+                fail(f"{owner} must carry the shared 50:50 human-scene entry contract: {token}")
+        if nonspace(prompt) <= 700:
+            fail(f"{owner}.prompt must exceed 700 non-whitespace characters.")
+        key = (platform, size)
+        if key in seen:
+            fail("video-cover platform and size pairs must be unique.")
+        seen.add(key)
+        platforms.add(platform)
+    missing = set(required_rows) - platforms
+    if missing:
+        fail(f"Missing default video-cover rows: {sorted(missing)}")
+    return len(rows)
+
+
 def validate_stage6(topic_dir: Path) -> dict[str, Any]:
     require_receipt(topic_dir, 5)
     package = require_object(
@@ -1214,13 +1259,24 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
     for index, value in enumerate(candidates):
         item = require_object(value, f"title_candidates[{index}]")
         titles.append(require_text(item, "title", f"title_candidates[{index}]"))
-        for key in ("reader_hook", "psychology", "promise", "risk"):
+        for key in ("reader_hook", "psychology", "promise", "visual_metaphor", "risk"):
             require_text(item, key, f"title_candidates[{index}]")
     selected = require_text(package, "selected_title", "title_cover_package")
     if selected not in titles:
         fail("selected_title must be one of title_candidates.")
     for key in ("selection_reason", "title_cover_link"):
         require_text(package, key, "title_cover_package")
+    entry = require_object(package.get("entry_contract"), "title_cover_package.entry_contract")
+    for key in (
+        "click_core", "human_protagonist", "familiar_scene", "active_metaphor",
+        "metaphor_mapping", "unresolved_question", "reader_payoff",
+        "article_headline", "video_headline", "consistency_rule",
+    ):
+        require_text(entry, key, "entry_contract")
+    if entry["article_headline"].strip() != selected:
+        fail("entry_contract.article_headline must match selected_title.")
+    if not 8 <= nonspace(entry["video_headline"]) <= 18:
+        fail("entry_contract.video_headline must contain 8-18 non-whitespace characters.")
     markdown = (topic_dir / "article" / "final_article.md").read_text(encoding="utf-8")
     title_match = re.search(r"(?m)^#\s+(.+?)\s*$", markdown)
     if not title_match or title_match.group(1).strip() != selected:
@@ -1237,6 +1293,11 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         "background_color",
         "background_material",
         "cover_subject",
+        "human_subject",
+        "human_action",
+        "visual_metaphor",
+        "metaphor_mapping",
+        "face_hand_visibility",
         "cover_conflict",
         "cover_action",
         "cover_visible_stakes",
@@ -1271,8 +1332,8 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         require_text(cover, key, "cover_prompt")
     if cover["aspect_ratio"] != "2.35:1":
         fail("cover_prompt.aspect_ratio must be 2.35:1.")
-    if cover["style_profile"] != "white_material_micro_3d":
-        fail("cover_prompt.style_profile must be white_material_micro_3d.")
+    if cover["style_profile"] != "scene_to_white_micro_3d":
+        fail("cover_prompt.style_profile must be scene_to_white_micro_3d.")
     if cover["palette_profile"] != VISUAL_PALETTE_PROFILE:
         fail(
             "cover_prompt.palette_profile must be "
@@ -1290,8 +1351,8 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         )
     if cover["cover_layout"] != "left_scene_right_info":
         fail("cover_prompt.cover_layout must be left_scene_right_info.")
-    if cover["layout_ratio"] not in {"scene_45_info_55", "scene_50_info_50"}:
-        fail("cover_prompt.layout_ratio must keep the scene and information near half.")
+    if cover["layout_ratio"] != "scene_50_info_50":
+        fail("cover_prompt.layout_ratio must be strict scene_50_info_50.")
     if cover["scene_position"] != "left_half":
         fail("cover_prompt.scene_position must be left_half.")
     if cover["information_position"] != "right_half":
@@ -1304,6 +1365,16 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         "before_after",
     }:
         fail("cover_prompt.information_form is invalid.")
+    nodes = require_list(cover.get("information_nodes"), "cover_prompt.information_nodes")
+    if not 2 <= len(nodes) <= 4 or any(not isinstance(v, str) or not v.strip() for v in nodes):
+        fail("cover_prompt.information_nodes must contain two to four large nodes.")
+    labels = require_list(
+        cover.get("information_labels"),
+        "cover_prompt.information_labels",
+        allow_empty=True,
+    )
+    if len(labels) > 3 or any(not isinstance(v, str) or not v.strip() for v in labels):
+        fail("cover_prompt.information_labels must contain zero to three short labels.")
     if cover["headline_text"] != selected:
         fail("cover_prompt.headline_text must match selected_title.")
     if not re.search(r"#[0-9A-Fa-f]{6}\b", cover["accent_color"]):
@@ -1322,13 +1393,14 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         cover.get("visual_elements"),
         "cover_prompt.visual_elements",
     )
-    if not 7 <= len(cover_elements) <= 11 or any(
+    if not 5 <= len(cover_elements) <= 8 or any(
         not isinstance(value, str) or not value.strip()
         for value in cover_elements
     ):
-        fail("cover_prompt.visual_elements must contain seven to eleven items.")
+        fail("cover_prompt.visual_elements must contain five to eight items.")
     if nonspace(cover["prompt"]) <= 700:
         fail("cover_prompt.prompt must exceed 700 non-whitespace characters.")
+    video_covers = validate_video_cover_prompts(topic_dir, entry["video_headline"].strip())
     digest_path = topic_dir / "article" / "final_article_digest.txt"
     if not digest_path.is_file():
         fail(f"Missing file: {digest_path}")
@@ -1344,6 +1416,7 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
             "selected_title": selected,
             "digest_chars": digest_chars,
             "cover_prompt_version": COVER_PROMPT_VERSION,
+            "video_covers": video_covers,
         },
     )
     return {
@@ -1351,6 +1424,7 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         "selected_title": selected,
         "digest_chars": digest_chars,
         "cover_prompt_version": COVER_PROMPT_VERSION,
+        "video_covers": video_covers,
         "receipt": str(receipt),
     }
 

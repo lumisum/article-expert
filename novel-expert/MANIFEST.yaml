@@ -1,10 +1,11 @@
-midlife_skill:
-  version: 9
-  id: midlife-article
+novel_expert_skill:
+  version: 22
+  id: novel-expert
   type: workflow
   execution_mode: phased
   phase_order: strict
   topic_workspace: "${REAL_USER_HOME}/wechat_articles/topics/[topic_id]"
+  lead_cast_ref: references/cast-bible.json
   phases:
     - id: stage0_topic
       instructions_ref: references/stage0.md
@@ -12,10 +13,10 @@ midlife_skill:
     - id: stage1_observation
       instructions_ref: references/stage1.md
       validator: "scripts/validate_stage.py --stage 1"
-    - id: stage2_causal_descent
+    - id: stage2_action_arc
       instructions_ref: references/stage2.md
       validator: "scripts/validate_stage.py --stage 2"
-    - id: stage3_wisdom_practice
+    - id: stage3_novel_audit
       instructions_ref: references/stage3.md
       validator: "scripts/validate_stage.py --stage 3"
     - id: stage4_article

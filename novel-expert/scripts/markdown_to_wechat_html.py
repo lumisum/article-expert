@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert final_article.md to polished WeChat paste-safe HTML.
+"""Convert a midlife novel Markdown file to restrained WeChat HTML.
 
 Design goal: the page should look delightful even before the reader reads a
 single sentence. Everything is inline-styled with WeChat-editor-safe CSS only
@@ -14,20 +14,10 @@ The fragment intentionally emits no page background or external stylesheet.
 Local editorial components may use restrained surfaces, borders, and radius;
 the code component uses a dark editor-window treatment for reliable contrast.
 
-Core visual formats:
-1. opening lead card           (data-wa-format="opening-lead")
-2. numbered major section head (data-wa-format="section-title")  # 圆形 01 徽章 + 标题
-3. subsection heading          (data-wa-format="subsection-title")
-4. punch line paragraph        (data-wa-format="punch")
-5. quote                       (data-wa-format="quote")
-6. list / table                (data-wa-format="list" / "table")
-7. fenced code block           (data-wa-format="code-block")
-8. closing reader questions    (data-wa-format="reader-questions")
-9. sentence-led body line      (data-wa-format="sentence-line")
-10. narrative divider          (data-wa-format="decorative-divider")
-
-The visual rhythm is built from whitespace, typography, outlined chapter badges,
-semantic emphasis, restrained rules, and a quiet descent-to-rebound color progression.
+Apart from the article title and image placeholders, every public body paragraph
+uses the same author-narration format. Direct speech remains ordinary novel text,
+without speaker cards or dialogue styling. Internal headings and construction
+markers stay invisible.
 """
 
 from __future__ import annotations
@@ -61,12 +51,6 @@ INK_SECONDARY = "CanvasText"
 HAIRLINE = "#b9c0c9"
 
 PUNCH_MAX_CHARS = 20
-LOWPOINT_SENTINEL = "@@WA_PHASE_LOWPOINT@@"
-REBOUND_SENTINEL = "@@WA_PHASE_REBOUND@@"
-WISDOM_EAST_SENTINEL = "@@WA_FEATURE_WISDOM_EAST@@"
-WISDOM_WEST_SENTINEL = "@@WA_FEATURE_WISDOM_WEST@@"
-AUTHOR_SENTINEL = "@@WA_FEATURE_AUTHOR@@"
-PRACTICE_SENTINEL = "@@WA_FEATURE_PRACTICE@@"
 MAX_LIFE_BREATHS = 2
 MAX_LIFE_DIVIDERS = 2
 
@@ -77,8 +61,8 @@ IMAGE_MARKER_RE = re.compile(
     flags=re.IGNORECASE,
 )
 DEPTH_MARKER_RE = re.compile(
-    r"^<!--\s*(?:DESCENT:L\d+:C\d+|SPARK:S\d+|REBOUND|"
-    r"WISDOM:(?:EAST|WEST):W\d+|AUTHOR:SYNTHESIS)\s*-->$",
+    r"^<!--\s*(?:STORY:(?:TRIGGER|FRICTION|CHOICE|PAYOFF)|ACTION:A\d{2}|"
+    r"MEANING:(?:TURN|PROOF))\s*-->$",
     flags=re.IGNORECASE,
 )
 DATA_MARKER_RE = re.compile(
@@ -86,8 +70,7 @@ DATA_MARKER_RE = re.compile(
     flags=re.IGNORECASE,
 )
 NON_IMAGE_CONSTRUCTION_RE = re.compile(
-    r"<!--\s*(?:DATA:[^>]*|USER:[^>]*|DESCENT:[^>]*|SPARK:[^>]*|"
-    r"REBOUND|WISDOM:[^>]*|AUTHOR:SYNTHESIS)\s*-->",
+    r"<!--\s*(?:DATA:[^>]*|USER:[^>]*|STORY:[^>]*|ACTION:[^>]*|MEANING:[^>]*)\s*-->",
     flags=re.IGNORECASE,
 )
 USER_MARKER_RE = re.compile(
@@ -106,6 +89,11 @@ IMAGE_MAX_BODY_BLOCKS = 4
 CODE_FENCE_OPEN_RE = re.compile(r"^(`{3,}|~{3,})\s*([^\s`~]+)?(?:\s+.*)?$")
 SENTENCE_ENDINGS = frozenset("。！？!?")
 SENTENCE_CLOSERS = frozenset("\"'”’」』）)]")
+SPEAKER_RE = re.compile(
+    r"^([\u4e00-\u9fffA-Za-z·]{1,12})[：:]\s*(.+)$",
+    flags=re.DOTALL,
+)
+PERFORMANCE_NOTE_RE = re.compile(r"^\*([^*\n]{6,})\*$", flags=re.DOTALL)
 
 
 def fail(message: str) -> None:
@@ -187,9 +175,13 @@ def article_mode(topic_dir: Path) -> str:
         profile = pack.get("article_profile")
         if isinstance(profile, dict):
             mode = str(profile.get("mode") or "").strip().lower()
-            if mode != "midlife_insight":
-                fail("midlife-article only renders article_profile.mode=midlife_insight.")
-    return "midlife_insight"
+            if mode != "midlife_novel":
+                fail("novel-expert only renders article_profile.mode=midlife_novel.")
+            narrative_mode = str(profile.get("narrative_mode") or "").strip().lower()
+            if narrative_mode != "novel_story":
+                fail("novel-expert requires article_profile.narrative_mode=novel_story.")
+            return narrative_mode
+    fail("novel-expert requires source_pack.article_profile.")
 
 
 def hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
@@ -377,6 +369,12 @@ def expand_sentence_line_blocks(
             expanded.append((block_type, lines))
             continue
         text = " ".join(line.strip() for line in lines if line.strip()).strip()
+        if (
+            SPEAKER_RE.fullmatch(text)
+            or PERFORMANCE_NOTE_RE.fullmatch(text)
+        ):
+            expanded.append((block_type, [text]))
+            continue
         sentences = split_sentence_lines(text)
         expanded.extend(("paragraph", [sentence]) for sentence in sentences)
     return expanded
@@ -384,39 +382,6 @@ def expand_sentence_line_blocks(
 
 def sanitize_construction_markers(md_text: str) -> str:
     """Keep image anchors while removing build markers and publishing footnotes."""
-    # Preserve only the two narrative turns as private parser sentinels. They
-    # guide the visual color progression but are never emitted into HTML.
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*SPARK:S\d+\s*-->\s*$",
-        f"\n{LOWPOINT_SENTINEL}\n",
-        md_text,
-    )
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*REBOUND\s*-->\s*$",
-        f"\n{REBOUND_SENTINEL}\n",
-        md_text,
-    )
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*WISDOM:EAST:W\d+\s*-->\s*$",
-        f"\n{WISDOM_EAST_SENTINEL}\n",
-        md_text,
-    )
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*WISDOM:WEST:W\d+\s*-->\s*$",
-        f"\n{WISDOM_WEST_SENTINEL}\n",
-        md_text,
-    )
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*AUTHOR:SYNTHESIS\s*-->\s*$",
-        f"\n{AUTHOR_SENTINEL}\n",
-        md_text,
-    )
-    md_text = re.sub(
-        r"(?mi)^\s*<!--\s*PRACTICE\s*-->\s*$",
-        f"\n{PRACTICE_SENTINEL}\n",
-        md_text,
-    )
-
     def strip_comment(match: re.Match[str]) -> str:
         comment = match.group(0).strip()
         return comment if IMAGE_MARKER_RE.fullmatch(comment) else ""
@@ -489,24 +454,6 @@ def parse_blocks(md_text: str) -> list[tuple[str, list[str]]]:
             if current_type != "list":
                 flush()
             continue
-        if stripped == LOWPOINT_SENTINEL:
-            flush()
-            blocks.append(("phase", ["lowpoint", "spark"]))
-            continue
-        if stripped == REBOUND_SENTINEL:
-            flush()
-            blocks.append(("phase", ["rebound"]))
-            continue
-        feature_role = {
-            WISDOM_EAST_SENTINEL: "wisdom-east",
-            WISDOM_WEST_SENTINEL: "wisdom-west",
-            AUTHOR_SENTINEL: "author",
-            PRACTICE_SENTINEL: "practice",
-        }.get(stripped)
-        if feature_role:
-            flush()
-            blocks.append(("feature", [feature_role]))
-            continue
         if (
             DEPTH_MARKER_RE.fullmatch(stripped)
             or DATA_MARKER_RE.fullmatch(stripped)
@@ -563,11 +510,12 @@ class Theme:
         accent: str,
         supporting: list[str] | None = None,
         *,
-        mode: str = "midlife_insight",
+        mode: str = "novel_story",
     ) -> None:
         supporting = [value.upper() for value in (supporting or []) if value.upper() != accent.upper()]
         self.mode = mode
-        self.is_life = mode == "midlife_insight"
+        self.is_novel = mode == "novel_story"
+        self.is_life = self.is_novel
         self.accent = accent.upper()
         if self.is_life:
             # Pearl-mist editorial accents aligned with the midlife image
@@ -649,17 +597,12 @@ def clean_quote_lead(text: str) -> str:
 def render_article_title(text: str, theme: Theme) -> str:
     if theme.is_life:
         return (
-            f'<section data-wa-format="article-title" data-wa-variant="life-editorial" '
-            f'style="margin: 12px 0 40px; padding: 24px 8px 22px; '
-            f'border-top: 1px solid {theme.hairline}; border-bottom: 1px solid {theme.hairline}; '
-            f'box-sizing: border-box; text-align: center;">\n'
-            f'  <p style="margin: 0 auto 15px; width: 62px; font-size: 13px; line-height: 1; '
-            f'border-top: 3px solid {theme.section};">&nbsp;</p>\n'
-            f'  <h1 style="font-size: 18px; line-height: 1.65; color: {theme.ink}; font-weight: 900; '
+            f'<section data-wa-format="article-title" data-wa-variant="plain-novel" '
+            f'style="margin: 18px 0 36px; padding: 0 6px; box-sizing: border-box; '
+            f'text-align: center;">\n'
+            f'  <h1 style="font-size: 20px; line-height: 1.6; color: {theme.ink}; font-weight: 800; '
             f'margin: 0; padding: 0; text-align: center; letter-spacing: 0;">'
             f'{convert_inline(text, theme)}</h1>\n'
-            f'  <p style="margin: 17px auto 0; width: 104px; font-size: 13px; line-height: 1; '
-            f'border-top: 1px solid {theme.subsection};">&nbsp;</p>\n'
             f'</section>'
         )
     return (
@@ -694,6 +637,30 @@ def render_quote(text: str, theme: Theme, accent: str | None = None) -> str:
         f'font-weight: 900; margin-right: 4px;">“</span>'
         f'{convert_inline(text, theme)}</p>\n'
         f'</section>'
+    )
+
+
+def render_dialogue_as_narration(
+    speaker: str,
+    text: str,
+    theme: Theme,
+    *,
+    feature: str | None = None,
+) -> str:
+    del feature
+    return render_author_narration(f"{speaker}：{text}", theme)
+
+
+def render_performance_note(text: str, theme: Theme) -> str:
+    return render_author_narration(text, theme)
+
+
+def render_author_narration(text: str, theme: Theme) -> str:
+    return (
+        f'<p data-wa-format="author-narration" '
+        f'style="margin: 0 0 1.25em; padding: 0; font-size: 15px; line-height: 1.95; '
+        f'color: {theme.ink_secondary}; font-style: normal; text-align: left;">'
+        f'{convert_inline(text, theme)}</p>'
     )
 
 
@@ -745,30 +712,18 @@ def render_section_title(
     theme: Theme,
     accent: str | None = None,
 ) -> str:
-    """Centered editorial pause for a chapter-level insight."""
+    """Render a major section; life articles keep scene labels editorial-only."""
     title = clean_section_title(text)
     num = f"{number:02d}"
     accent = accent or theme.section
     if theme.is_life:
         return (
-            f'<section data-wa-format="section-title" data-wa-variant="life-centered-insight" '
+            f'<section data-wa-format="scene-transition" data-wa-variant="life-invisible-scene-label" '
+            f'data-wa-scene-index="{number}" '
             f'data-wa-phase-accent="{accent}" '
-            f'style="margin: 60px 0 30px; padding: 0 10px 6px; box-sizing: border-box; '
-            f'text-align: center;">\n'
-            f'  <p data-wa-format="section-ornament" style="margin: 0 auto 12px; padding: 0; '
-            f'font-size: 13px; line-height: 1; text-align: center; color: {accent};">'
-            f'<span style="display: inline-block; width: 46px; border-top: 1px solid {theme.hairline}; '
-            f'vertical-align: middle;">&nbsp;</span>'
-            f'<span style="display: inline-block; margin: 0 11px; font-size: 15px; '
-            f'line-height: 1; color: {accent}; vertical-align: middle;">◇</span>'
-            f'<span style="display: inline-block; width: 46px; border-top: 1px solid {theme.hairline}; '
-            f'vertical-align: middle;">&nbsp;</span></p>\n'
-            f'  <p data-wa-format="section-number" style="margin: 0 0 7px; padding: 0; '
-            f'font-size: 13px; line-height: 1.4; color: {accent}; font-weight: 850; '
-            f'text-align: center;">{num}</p>\n'
-            f'  <p data-wa-format="section-heading" style="margin: 0; padding: 0; '
-            f'font-size: 18px; line-height: 1.65; color: {theme.ink}; font-weight: 850; '
-            f'text-align: center;">{convert_inline(title, theme)}</p>\n'
+            f'style="margin: 38px auto 26px; padding: 0; width: 48px; height: 1px; '
+            f'border-top: 1px solid {theme.hairline}; box-sizing: border-box; font-size: 0; '
+            f'line-height: 0; overflow: hidden;">&nbsp;\n'
             f'</section>'
         )
     number_color = (theme.section, theme.subsection, theme.emphasis)[(number - 1) % 3]
@@ -1224,7 +1179,8 @@ def render_blocks(
     blocks: list[tuple[str, list[str]]],
     theme: Theme,
 ) -> str:
-    blocks = expand_sentence_line_blocks(blocks)
+    if not theme.is_novel:
+        blocks = expand_sentence_line_blocks(blocks)
     blocks, section_images = organize_image_anchors(blocks)
     html_blocks: list[str] = []
     section_number = 0
@@ -1270,10 +1226,11 @@ def render_blocks(
     for block_index, (btype, lines) in enumerate(blocks):
         if btype == "phase":
             narrative_phase = lines[0] if lines else narrative_phase
-            if len(lines) > 1:
+            if len(lines) > 1 and not theme.is_novel:
                 pending_feature = lines[1]
             if (
                 theme.is_life
+                and not theme.is_novel
                 and narrative_phase == "rebound"
                 and divider_count < MAX_LIFE_DIVIDERS
             ):
@@ -1284,10 +1241,12 @@ def render_blocks(
             continue
 
         if btype == "feature":
-            pending_feature = lines[0] if lines else None
+            pending_feature = None if theme.is_novel else (lines[0] if lines else None)
             continue
 
         if btype == "divider":
+            if theme.is_novel:
+                continue
             if not theme.is_life or divider_count < MAX_LIFE_DIVIDERS:
                 html_blocks.append(render_decorative_divider(theme, phase_accent()))
                 divider_count += 1
@@ -1309,17 +1268,27 @@ def render_blocks(
                 body_blocks_in_section = 0
                 body_chars_in_section = 0
                 section_number += 1
-                chapter_lead_pending = True
-                html_blocks.append(
-                    render_section_title(
-                        raw[3:].strip(),
-                        section_number,
-                        theme,
-                        phase_accent(),
+                chapter_lead_pending = not theme.is_life
+                if not theme.is_novel:
+                    html_blocks.append(
+                        render_section_title(
+                            raw[3:].strip(),
+                            section_number,
+                            theme,
+                            phase_accent(),
+                        )
                     )
-                )
             elif raw.startswith("### "):
-                html_blocks.append(render_subsection_title(raw[4:].strip(), theme))
+                if not theme.is_novel:
+                    html_blocks.append(render_subsection_title(raw[4:].strip(), theme))
+            continue
+
+        if theme.is_novel and btype in {"code", "quote", "list", "table"}:
+            text = " ".join(lines[1:] if btype == "code" else lines).strip()
+            text = re.sub(r"^(?:>\s*|[\-*+]\s+|\d+\.\s+)", "", text)
+            if text:
+                html_blocks.append(render_author_narration(text, theme))
+                note_body_block(text)
             continue
 
         if btype == "code":
@@ -1414,7 +1383,34 @@ def render_blocks(
             continue
 
         if looks_like_step_subtitle(text):
-            html_blocks.append(render_subsection_title(text, theme))
+            if theme.is_novel:
+                html_blocks.append(render_author_narration(text, theme))
+                note_body_block(text)
+            else:
+                html_blocks.append(render_subsection_title(text, theme))
+            continue
+
+        performance_match = PERFORMANCE_NOTE_RE.fullmatch(text)
+        if performance_match:
+            html_blocks.append(render_performance_note(performance_match.group(1).strip(), theme))
+            note_body_block(performance_match.group(1))
+            continue
+
+        speaker_match = SPEAKER_RE.fullmatch(text)
+        if speaker_match:
+            speaker, spoken_text = speaker_match.groups()
+            html_blocks.append(
+                render_dialogue_as_narration(
+                    speaker,
+                    spoken_text.strip(),
+                    theme,
+                    feature=pending_feature,
+                )
+            )
+            pending_feature = None
+            chapter_lead_pending = False
+            lead_used = True
+            note_body_block(spoken_text)
             continue
 
         if pending_feature:
@@ -1426,7 +1422,15 @@ def render_blocks(
             continue
 
         if re.fullmatch(r"\*\*(?s:.+)\*\*", text):
-            html_blocks.append(render_punch(text[2:-2].strip(), theme, phase_accent()))
+            if theme.is_novel:
+                html_blocks.append(render_author_narration(text[2:-2].strip(), theme))
+            else:
+                html_blocks.append(render_punch(text[2:-2].strip(), theme, phase_accent()))
+            note_body_block(text)
+            continue
+
+        if theme.is_novel:
+            html_blocks.append(render_author_narration(text, theme))
             note_body_block(text)
             continue
 
@@ -1485,9 +1489,10 @@ def write_wechat_html(topic_dir: Path, *, quiet: bool = False) -> Path:
     # The first substantive paragraph becomes the opening-lead card.
     body_html = render_blocks(blocks, theme)
 
+    theme_name = f"midlife-{mode.replace('_', '-')}"
     full_html = (
         '<meta charset="UTF-8">\n'
-        f'<section data-wa-theme="{mode.replace("_", "-")}" '
+        f'<section data-wa-theme="{theme_name}" '
         f'style="max-width: 640px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, '
         f"'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', Arial, sans-serif; "
         f"font-size: 15px; line-height: 1.9; color: {theme.ink_secondary}; word-wrap: break-word; "

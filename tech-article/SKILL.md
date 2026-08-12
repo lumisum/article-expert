@@ -14,7 +14,7 @@ description: 专业的技术类微信公众号文章全流程创作技能。覆�
 1. **技术讲解 `technical_explainer`**：解释一个模型、协议、框架、产品能力或工程机制怎样工作，帮助读者形成准确心智模型并作出技术选择。
 2. **实操抄作业 `hands_on_playbook`**：从真实目标、阻力、失败、修复、验证和优化出发，交付读者可以复现的实施路径。
 
-主题核心是公司业务模式、产业竞争、资本预期或业务投资判断时，使用`business-article`。主题核心是三十五岁以后的人生经历与认知时，使用`midlife-article`。一般非技术公众号文章使用`wechat-article`。
+主题核心是公司业务模式、产业竞争、资本预期或业务投资判断时，使用`business-article`。主题核心是三十五岁以后的人生经历与认知时，使用`novel-expert`。一般非技术公众号文章使用`wechat-article`。
 
 ## 核心标准
 
@@ -43,7 +43,7 @@ description: 专业的技术类微信公众号文章全流程创作技能。覆�
 | S3 技术审校 | `references/stage3.md` | 独立机制审校、复现审校与读者作业单 | `validate_stage.py --stage 3` |
 | S4 成文排版 | `references/stage4.md` | 两遍成文后的定稿Markdown与可复制HTML | `validate_stage.py --stage 4` |
 | S5 正文配图 | `references/stage5.md` | 每个大章节一条3:4配图提示词 | `validate_stage.py --stage 5` |
-| S6 标题封面 | `references/stage6.md` | 标题、2.35:1封面提示词与摘要 | `validate_stage.py --stage 6` |
+| S6 标题封面 | `references/stage6.md` | 标题、2.35:1文章封面、跨平台视频封面JSONL与摘要 | `validate_stage.py --stage 6` |
 | S7 逐图旁白与语音，可选 | `references/stage7.md` | 与正文配图逐一对应的旁白、Edge TTS音频、时长清单与待放图片目录 | `validate_stage.py --stage 7` |
 
 用户要求“完整公众号文章”时，必须依次完成S0至S6；用户已经明确主题时可跳过S0。S7仅在用户明确需要逐图视频旁白或配套语音时执行。用户在定稿后提出疑问或修改建议时，回到相关阶段补充研究或重做推理，再重新执行受影响阶段的校验，不得只做表面润色。
@@ -95,6 +95,7 @@ S0使用`--scan-dir`。校验脚本只负责结构、路径、证据链、版本
 - `article/final_article_digest.txt`
 - `assets/image_prompts.jsonl`
 - `assets/title_cover_package.json`
+- `assets/video_cover_prompts.jsonl`
 - S1至S6阶段回执
 
 执行S7时额外交付：

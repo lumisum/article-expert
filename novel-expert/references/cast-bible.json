@@ -1,0 +1,74 @@
+{
+  "version": "sumei_ningxiang_leads_v2",
+  "series_label": "苏美 × 凝香｜中年故事",
+  "lead_cast_ids": [
+    "sumei",
+    "kaidi"
+  ],
+  "supporting_cast_policy": {
+    "allowed": true,
+    "rule": "苏美与凝香是跨篇固定男女主角；每篇可按事件需要自由增加家人、同事、医生、邻居、朋友或其他配角，不设固定人数，但每位配角必须有明确剧情作用和材料边界",
+    "continuity_rule": "同一篇内配角的姓名、年龄区间、外观、关系和说话方式保持一致；跨篇不默认复用",
+    "dignity_rule": "配角不是观点工具、反面教材或推动主角成长的一次性装置，也拥有可信动机、行动和后果"
+  },
+  "sumei": {
+    "id": "sumei",
+    "name": "苏美",
+    "gender": "成年中国女性",
+    "age": 32,
+    "editorial_role": "既能感受关系细节，也能提出清醒判断的共同探索者；不固定承担感性、受伤或提问位置",
+    "appearance_signature": "固定角色苏美，32岁成年中国女性，自然小麦暖肤色，鹅蛋脸，清醒明亮的杏眼，自然眉形，齐肩微卷黑发，匀称挺拔的正常成年人体态，清爽知性而有生命力，真实肤质，非网红脸，非幼态，非性感化",
+    "wardrobe_signature": "珊瑚橙针织外套或同轮廓轻外套，暖日米白内搭与长裙或直筒长裤，湖青色小面积配饰，始终保留一只湖青色布袋作为连续物件",
+    "voice_signature": "自然中低音女声，温暖清晰，语速中等偏慢，句尾不过度上扬，重要判断前有短停顿；克制但不虚弱，亲近但不撒娇",
+    "expression_signature": "明亮眼神、放松眉间、自然微笑与轻松专注为基线；困难时平静清醒，不皱眉卖惨，不使用空洞受害者表情",
+    "gesture_signature": "思考时指尖会轻触杯沿或布袋提手，真正决定行动时肩颈打开、目光抬起、手掌向前；不反复抱臂防御",
+    "color_signature": [
+      "珊瑚橙 #E77A64",
+      "湖青 #4AA5A4",
+      "暖日米白 #FFF4DC"
+    ],
+    "forbidden_drift": "禁止换脸、年龄漂移、发型突变、夸张妆容、职业套装模板、眼镜书本咖啡杯式伪知性、性感广告姿态和长期愁容"
+  },
+  "kaidi": {
+    "id": "kaidi",
+    "name": "凝香",
+    "gender": "成年中国男性",
+    "age": 34,
+    "editorial_role": "既能追问因果和责任，也允许迟疑、承认看错并表达脆弱的共同探索者；不固定承担理性、答案或说教位置",
+    "appearance_signature": "固定角色凝香，34岁成年中国男性，明确为男性而非女性或英文名Katie，自然暖肤色，方圆脸，明亮深棕眼睛，自然短黑发并保持轻微侧分，修长稳健的正常成年人体态，温和清醒而有回应感，真实肤质，非霸总脸，非油腻化，非偶像模板",
+    "wardrobe_signature": "晴空蓝衬衫或同轮廓轻外套，深灰或雨蓝直筒长裤，暖铜色小面积配饰，始终保留一本暖铜色边角的深色随身笔记本作为连续物件",
+    "voice_signature": "温和男中音，音量克制，语速比苏美略慢，追问时清楚但不逼迫，承认迟疑时保留自然呼吸；不播音腔，不教师腔，不居高临下",
+    "expression_signature": "眼神有回应，面部放松，轻微温暖笑意或安静专注为基线；困难时保留力量和柔软，不面瘫，不用说教者表情",
+    "gesture_signature": "倾听时身体微微朝向苏美但保持自然距离，思考时拇指轻压笔记本边角，形成判断后会把笔记本合上并用开放手势回应；不指点、不俯视",
+    "color_signature": [
+      "晴空蓝 #5F9ED1",
+      "暖铜 #B67850",
+      "雨蓝 #526A7A"
+    ],
+    "forbidden_drift": "禁止变成女性、英文名Katie、霸总、导师、拯救者、无表情工具人、油腻中年模板、少年偶像或固定替苏美总结答案"
+  },
+  "relationship": {
+    "public_identity": "长期共同观察中年生活的内容搭档与朋友，不默认恋爱、婚姻或暧昧关系",
+    "dynamic_rule": "每篇根据主题重新分配谁先看见、谁先误判、谁追问、谁停顿、谁完成行动；禁止长期形成女性感受、男性解释的固定分工",
+    "dialogue_rule": "台词只在人物确实需要开口时出现并推动事件；停顿、表情、身体朝向、距离、递物、共同动作、环境声音和心理变化由作者旁白自然承载，不让任何一人连续发表课程式长篇演讲",
+    "conflict_rule": "允许不同判断和真实迟疑，但不为了戏剧性凭空争吵、恋爱化、羞辱、拯救或虚假和解",
+    "continuity_objects": [
+      "苏美的湖青色布袋",
+      "凝香的暖铜边深色笔记本"
+    ]
+  },
+  "performance_contract": {
+    "required_channels": [
+      "voice",
+      "facial_expression",
+      "gaze",
+      "body_action",
+      "spatial_relationship",
+      "environment_sound_or_silence",
+      "relationship_shift"
+    ],
+    "spoken_words_priority": "story_first_dialogue_as_action",
+    "hope_baseline": "sunlit_hopeful_without_denial",
+    "forbidden": "空泛轮流发言、采访式一问一答、观点口号接龙、两张没有表演细节的静态人像、持续愁容和性别刻板分工"
+  }
+}

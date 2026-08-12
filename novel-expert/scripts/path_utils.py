@@ -1,4 +1,4 @@
-"""Path rules for midlife-article outputs."""
+"""Path rules for novel-expert outputs."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ def wechat_workspace_root() -> Path:
 
 
 def latest_workflow_path() -> Path:
-    return wechat_workspace_root() / "_runtime" / "midlife_workflow" / "latest.json"
+    return wechat_workspace_root() / "_runtime" / "novel_workflow" / "latest.json"
 
 
 def expand_user_path(value: str) -> Path:
@@ -56,6 +56,6 @@ def ensure_topic_dir(path: Path) -> Path:
     except ValueError:
         fail(
             f"Invalid topic directory outside the real user workspace: {topic_dir}. "
-            f"All midlife-article outputs must live under {root}."
+            f"All novel-expert outputs must live under {root}."
         )
     return topic_dir

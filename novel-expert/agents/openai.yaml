@@ -1,0 +1,4 @@
+interface:
+  display_name: "小说专家"
+  short_description: "以严密现实逻辑创作3000至6000字的细腻中年人生微型小说"
+  default_prompt: "Use $novel-expert to create a 3000–6000-character midlife microfiction with auditable chronology, knowledge, money, objects, motives, causality, setup/payoff, and costly action, then render it as plain novel paragraphs."

@@ -1,4 +1,0 @@
-interface:
-  display_name: "中年人生公众号文章"
-  short_description: "专门创作三十五岁以后中年人生认知类精品微信公众号文章"
-  default_prompt: "Use $midlife-article to turn my midlife experience into a publishable Chinese WeChat article."

@@ -22,7 +22,7 @@ description: 深度科技商业与业务投资分析类微信公众号文章创�
 - 资本预期、估值叙事、风险变量与业务投资观察；
 - 科技变化对企业经营者、从业者和普通投资观察者的现实影响。
 
-纯技术讲解、教程、代码、架构、排障和操作手册使用`tech-article`。三十五岁以后的人生认知使用`midlife-article`。其它一般主题使用`wechat-article`。本技能不生成股票代码清单、收益承诺、仓位建议、买入卖出点或个性化财务建议。
+纯技术讲解、教程、代码、架构、排障和操作手册使用`tech-article`。三十五岁以后的人生认知使用`novel-expert`。其它一般主题使用`wechat-article`。本技能不生成股票代码清单、收益承诺、仓位建议、买入卖出点或个性化财务建议。
 
 ## 不可变契约
 
@@ -54,7 +54,7 @@ description: 深度科技商业与业务投资分析类微信公众号文章创�
 | S3 利润审计、悟道与观察 | `references/stage3.md` + `business_depth.md` + `author.md` | 因果与经济性复核、规律对照、观察框架 | `validate_stage.py --stage 3` |
 | S4 成文与HTML | `references/stage4.md` + `business_depth.md` + `author.md` | 两遍成文后的定稿Markdown与可复制HTML | `validate_stage.py --stage 4` |
 | S5 正文配图 | `references/stage5.md` | 每章一条3:4配图提示词 | `validate_stage.py --stage 5` |
-| S6 标题封面摘要 | `references/stage6.md` | 标题、2.35:1封面提示词、digest | `validate_stage.py --stage 6` |
+| S6 标题封面摘要 | `references/stage6.md` | 标题、2.35:1文章封面、跨平台视频封面JSONL、digest | `validate_stage.py --stage 6` |
 | S7 逐图旁白与语音，可选 | `references/stage7.md` + `business_depth.md` + `author.md` | 每张正文图五至六句旁白、Edge TTS音频、时长清单与待放图片目录 | `validate_stage.py --stage 7` |
 
 进入每个阶段前必须完整读取对应参考文件。不得凭记忆复述流程，也不得跳过阶段收据直接写最终文章。
@@ -90,6 +90,7 @@ ${REAL_USER_HOME}/wechat_articles/topics/[topic_id]/
 ├── assets/
 │   ├── image_prompts.jsonl
 │   ├── title_cover_package.json
+│   ├── video_cover_prompts.jsonl
 │   ├── stage5_receipt.json
 │   └── stage6_receipt.json
 └── video/

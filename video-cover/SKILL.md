@@ -46,19 +46,20 @@ Do not mix palettes merely for variety. If the subject genuinely crosses domains
 
 Make the cover communicate one idea at thumbnail size:
 
-`recognizable subject + unresolved action or conflict + visible explanatory payoff`
+`recognizable person + active visual metaphor + unresolved conflict + visible explanatory payoff`
 
 Use the shared `scene_to_white_micro_3d` backbone:
 
-- devote 60% of the canvas to a large, realistic, recognizable scene captured as a credible moment rather than a staged poster;
-- devote only 40% of the canvas to a low-density white-material micro-3D outline that summarizes the video's single key relationship;
+- devote exactly 50% of the canvas to a large, realistic human scene captured as a credible moment rather than a staged poster;
+- devote exactly 50% of the canvas to a low-density white-material micro-3D outline that summarizes the video's single key relationship;
+- require a visible person with a readable face or hands and an unfinished action; make that action physically enact the title's metaphor instead of merely decorating the topic;
 - transform a shared person, object, path, interface, product, or action into that concise outline structure;
 - preserve color, lighting, perspective, material, and subject continuity through a soft 10% to 15% transition zone;
 - keep one absolute subject, one relationship, and one visible result;
 - use colored accents for meaning, not decoration;
 - reject split-screen collage, generic icon clouds, empty atmosphere, and flat presentation diagrams.
 
-For landscape canvases, use a strict 60:40 left-scene/right-information composition. For portrait canvases, use a strict 60:40 upper-scene/lower-information composition. A diagonal or depth-based transition is acceptable only when the scene still owns about 60% of the visual weight and the shared anchor remains obvious.
+For landscape canvases, use a strict 50:50 left-human-scene/right-information composition. For portrait canvases, use a strict 50:50 upper-human-scene/lower-information composition. A diagonal or depth-based transition is acceptable only when both halves retain equal visual weight and the shared anchor remains obvious.
 
 Treat the information layer as an outline, not a full explanation. Use two to four information nodes, zero to three short labels, one relationship, and one conclusion. Do not reproduce the video's complete causal chain, architecture, timeline, value model, or argument on the cover.
 
@@ -84,8 +85,8 @@ Write one independent Chinese prompt per variant with more than 700 non-whitespa
 
 - exact pixel dimensions and aspect ratio;
 - platform use case and safe-zone behavior;
-- a verifiably realistic scene, subject geometry, active gesture, conflict, environmental traces, and visible payoff;
-- the strict 60% scene / 40% outline-information proportion and the shared anchor;
+- a verifiably realistic human scene, readable face or hands, active gesture, title-linked metaphor, conflict, environmental traces, and visible payoff;
+- the strict 50% scene / 50% outline-information proportion and the shared anchor;
 - transition of color, light, perspective, and material;
 - foreground, middle ground, background, camera, focus, and visual path;
 - surfaces, thickness, bevels, seams, translucency, shadows, and micro-details;

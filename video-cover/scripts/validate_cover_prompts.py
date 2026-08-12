@@ -89,7 +89,7 @@ def validate_row(item: dict[str, Any], index: int) -> tuple[str, str]:
     if any(not isinstance(point, str) or not point.strip() for point in points):
         fail(f"{owner}.core_prompt_points must contain only non-empty strings")
     joined_points = " ".join(points)
-    for required in ("60%", "40%", "真实", "纲要"):
+    for required in ("50:50", "人物", "真实", "纲要", "隐喻"):
         if required not in joined_points:
             fail(f"{owner}.core_prompt_points must include {required}")
     if not any(value in joined_points.upper() for value in BACKGROUND_HEXES):
@@ -97,7 +97,7 @@ def validate_row(item: dict[str, Any], index: int) -> tuple[str, str]:
 
     if nonspace(prompt) <= 700:
         fail(f"{owner}.prompt must exceed 700 non-whitespace characters")
-    for required in (size, ratio, "60%", "40%", "真实", "纲要"):
+    for required in (size, ratio, "50:50", "人物", "真实", "纲要", "隐喻"):
         if required not in prompt:
             fail(f"{owner}.prompt must include {required}")
     if not any(value in prompt.upper() for value in BACKGROUND_HEXES):
