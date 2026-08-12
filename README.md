@@ -41,7 +41,7 @@
 | ✍️ [**`wechat-article`**](file:///Users/elonmar/GitHub/article-expert/wechat-article) | **通用中文深度公众号文章** | 适用于文化、哲理、社会观察与通用认知主题。提供 5-7 层深度因果推演与内联 HTML 排版。 |
 | 💻 [**`tech-article`**](file:///Users/elonmar/GitHub/article-expert/tech-article) | **技术讲解与实操 Playbook** | 覆盖 AI/LLM/Agent、软件工程、架构及 API。强调机制原理解析、精确版本锚定与无死角实操/排障闭环。 |
 | 📊 [**`business-article`**](file:///Users/elonmar/GitHub/article-expert/business-article) | **科技商业与业务投资分析** | 深入拆解商业机制、变现路径、单位经济性（UE）、利润质量、竞争壁垒及资本预期（非买卖建议）。 |
-| 🕯️ [**`novel-expert`**](file:///Users/elonmar/GitHub/article-expert/novel-expert) | **小说专家** | 以苏美与凝香为固定男女主角并按剧情自由加入配角，用八本现实逻辑账和知行合一构建35+细腻微型小说，配套普通小说版式HTML、带叙事边框短句的连续插画、完整场景封面和可选多人有声版。 |
+| 🕯️ [**`midlife-article`**](file:///Users/elonmar/GitHub/article-expert/midlife-article) | **中年人生认知与情感叙事** | 专注 35+ 人生经历（职业、代际、婚姻家庭、身体健康）。结合故事下潜与东西方哲学照明，拒绝流量焦虑。 |
 | 📈 [**`equity-fundamentals-review`**](file:///Users/elonmar/GitHub/article-expert/equity-fundamentals-review) | **美/A股上市公司基本面审读** | 面向 SEC EDGAR / 巨潮 CNINFO 官方财报与业绩会，提供审计级研究判断及五色视觉信号系统（🟢🔴🟡🔵⚪）。 |
 | 🎙️ [**`narrated-video`**](file:///Users/elonmar/GitHub/article-expert/narrated-video) | **画音同步纵向短视频合成** | 自动匹配编号配图与 Edge TTS 旁白语音，生成 0.6s 优雅交叉淡化转场与 3:4 纵向 MP4 成片。 |
 | 🖼️ [**`video-cover`**](file:///Users/elonmar/GitHub/article-expert/video-cover) | **多平台视频封面提示词生成** | 复用人生、技术、商业三套视觉语法，以“50%真实人物隐喻场景 + 50%低密度微3D纲要”生成逐平台五字段精简 JSONL 提示词。 |
@@ -55,7 +55,7 @@
 ```text
 [S0 选题门禁] ──> [S1 见事与底座] ──> [S2 机制链/Spark] ──> [S3 验证与悟道致用]
                                                                   │
-[S7 多人小说有声版] <── [S6 事件标题与完整小说场景封面] <── [S5 固定主角与动态配角无文字连环画] <── [S4 小说正文与普通小说版式HTML]
+[S7 短视频口播] <── [S6 标题与封面] <── [S5 章节高上下文配图] <── [S4 定稿与HTML排版]
 ```
 
 1. **S0 选题确认**：评估检索与收藏价值，确定 3 个高质量读者候选问题。
@@ -63,9 +63,9 @@
 3. **S2 机制与 Spark 生长**：多轮因果推演，形成机制导图，在最低点培育 Spark。
 4. **S3 验证与致用**：复核下潜有效性，进行跨周期规律总结（哲学照明）与现实行动指南设计。
 5. **S4 成文与 HTML 转换**：两遍精修成文，自动转化为微信公众号专属 HTML 格式。
-6. **S5 正文配图提示词**：小说跨文章固定苏美与凝香为男女主角，并按每幕事件加入必要配角，为每个`##`章节生成一幕3:4、100%全场景、无文字的成熟彩色叙事插画微3D连环画提示词；封面与其共享同一插画世界。
-7. **S6 标题、封面与摘要**：用同一事件生成高点击力标题、文章封面、主流平台视频封面JSONL与Digest；小说封面100%重现一张最具代表性的完整场景，标题融入原生负空间，不再按比例切分。
-8. **S7 口播与短视频（可选）**：`midlife`生成苏美与凝香双音色逐轮语音及每图合并音频，其它技能沿用各自旁白流程。
+6. **S5 正文配图提示词**：每个 `##` 章节生成一条包含双层视觉表达的 3:4 高上下文提示词。
+7. **S6 标题、封面与摘要**：生成同频高点击力标题、2.35:1 封面提示词与 Digest 摘要。
+8. **S7 口播与短视频（可选）**：配套生成 3-5 分钟逐图旁白文案、TTS 音频与短视频。
 
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: narrated-video
-description: 专业级画音同步纵向短视频（3:4 MP4）自动合成技能。基于标准的音频/图片目录，精准对齐逐段旁白语音（Edge TTS）与同编号高上下文配图，自动生成 0.6s 优雅交叉淡化转场、音视频流封装、分秒级时间轴与完整构建报告。适用于tech-article、novel-expert和business-article的素材对接。
+description: 专业级画音同步纵向短视频（3:4 MP4）自动合成技能。基于标准的音频/图片目录，精准对齐逐段旁白语音（Edge TTS）与同编号高上下文配图，自动生成 0.6s 优雅交叉淡化转场、音视频流封装、分秒级时间轴与完整构建报告。适用于tech-article、midlife-article和business-article的素材对接。
 ---
 
 # narrated-video
@@ -11,7 +11,7 @@ description: 专业级画音同步纵向短视频（3:4 MP4）自动合成技能
 
 ## 标准输入
 
-`tech-article`、`novel-expert`和`business-article`的S7会准备除图片外的全部素材：
+`tech-article`、`midlife-article`和`business-article`的S7会准备除图片外的全部素材：
 
 ```text
 [topic]/video/

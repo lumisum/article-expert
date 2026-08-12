@@ -23,11 +23,14 @@ from path_utils import ensure_topic_dir, expand_user_path
 CONTRACT_VERSION = 6
 RENDERER_VERSION = 6
 ARTICLE_CONTRACT_VERSION = 2
-IMAGE_PROMPT_VERSION = 7
-COVER_PROMPT_VERSION = 5
+IMAGE_PROMPT_VERSION = 8
+COVER_PROMPT_VERSION = 6
 NARRATION_VERSION = 2
-VISUAL_PALETTE_PROFILE = "pearl_mist_midlife"
-VISUAL_BACKGROUND_HEX = "#F3F4F1"
+VISUAL_PALETTE_PROFILE = "sunlit_anime_midlife"
+VISUAL_ART_STYLE = "semi_anime_micro_3d"
+VISUAL_CAST_PROFILE = "ningxiang_sumei_sunny_pair"
+VISUAL_FRAME_STYLE = "gentle_picture_border"
+VISUAL_ACCENT_HEXES = ("#E8A85C", "#5B8FBF", "#6FA67A", "#E08A7A")
 RECEIPTS = {
     1: "research/stage1_receipt.json",
     2: "article/stage2_receipt.json",
@@ -1260,14 +1263,21 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
     )
     for key in (
         "version",
+        "art_style",
+        "cast_profile",
         "information_visual_mode",
         "selection_reason",
         "article_visual_thesis",
+        "mood_rule",
         "uniformity_rule",
     ):
         require_text(visual_system, key, "image_visual_system")
-    if visual_system["version"] != "article_information_visual_system_v1":
-        fail("image_visual_system.version must be article_information_visual_system_v1.")
+    if visual_system["version"] != "article_information_visual_system_v2":
+        fail("image_visual_system.version must be article_information_visual_system_v2.")
+    if visual_system["art_style"] != VISUAL_ART_STYLE:
+        fail(f"image_visual_system.art_style must be {VISUAL_ART_STYLE}.")
+    if visual_system["cast_profile"] != VISUAL_CAST_PROFILE:
+        fail(f"image_visual_system.cast_profile must be {VISUAL_CAST_PROFILE}.")
     visual_mode = visual_system["information_visual_mode"]
     if visual_mode not in {"micro_3d_info_cards", "micro_3d_editorial_illustration"}:
         fail("image_visual_system.information_visual_mode is invalid.")
@@ -1326,9 +1336,15 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
         for key in (
             "article_context",
             "visual_thesis",
+            "art_style",
+            "cast_profile",
             "subject_profile",
+            "male_lead",
+            "female_lead",
+            "cast_mood",
+            "male_character_design",
             "female_character_design",
-            "female_story_action",
+            "pair_story_action",
             "scene_layer",
             "information_question",
             "information_form",
@@ -1338,9 +1354,12 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             "layout_ratio",
             "scene_position",
             "information_position",
+            "frame_style",
+            "frame_plan",
             "palette_profile",
-            "background_color",
-            "background_material",
+            "environment_plan",
+            "depth_of_field_plan",
+            "lighting_plan",
             "accent_color",
             "visual_bridge",
             "shared_anchor",
@@ -1384,36 +1403,42 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
                 "relationship_tableau",
             }:
                 fail(f"{owner}.editorial_illustration_structure is invalid.")
-        if item["subject_profile"] != "attractive_intellectual_woman_28_35":
-            fail(
-                f"{owner}.subject_profile must be "
-                "attractive_intellectual_woman_28_35."
-            )
+        if item["art_style"] != VISUAL_ART_STYLE:
+            fail(f"{owner}.art_style must be {VISUAL_ART_STYLE}.")
+        if item["cast_profile"] != VISUAL_CAST_PROFILE:
+            fail(f"{owner}.cast_profile must be {VISUAL_CAST_PROFILE}.")
+        if item["subject_profile"] != VISUAL_CAST_PROFILE:
+            fail(f"{owner}.subject_profile must be {VISUAL_CAST_PROFILE}.")
+        if item["cast_mood"] != "sunny_upward_positive":
+            fail(f"{owner}.cast_mood must be sunny_upward_positive.")
+        if "凝香" not in item["male_lead"] or "苏美" not in item["female_lead"]:
+            fail(f"{owner} must name male lead 凝香 and female lead 苏美.")
         if item["layout_ratio"] not in {
-            "scene_30_info_70",
-            "scene_33_info_67",
-            "scene_35_info_65",
+            "scene_68_info_32",
+            "scene_70_info_30",
+            "scene_72_info_28",
         }:
             fail(
-                f"{owner}.layout_ratio must keep the top scene near one third "
-                "and the lower information layer near two thirds."
+                f"{owner}.layout_ratio must keep the top scene near seventy percent "
+                "and the lower information layer near thirty percent."
             )
-        if item["scene_position"] != "top_third":
-            fail(f"{owner}.scene_position must be top_third.")
-        if item["information_position"] != "lower_two_thirds":
-            fail(f"{owner}.information_position must be lower_two_thirds.")
+        if item["scene_position"] != "upper_seventy":
+            fail(f"{owner}.scene_position must be upper_seventy.")
+        if item["information_position"] != "lower_thirty":
+            fail(f"{owner}.information_position must be lower_thirty.")
+        if item["frame_style"] != VISUAL_FRAME_STYLE:
+            fail(f"{owner}.frame_style must be {VISUAL_FRAME_STYLE}.")
         if item["palette_profile"] != VISUAL_PALETTE_PROFILE:
             fail(f"{owner}.palette_profile must be {VISUAL_PALETTE_PROFILE}.")
-        if VISUAL_BACKGROUND_HEX not in item["background_color"].upper():
-            fail(
-                f"{owner}.background_color must use the midlife background "
-                f"{VISUAL_BACKGROUND_HEX}."
-            )
-        if VISUAL_BACKGROUND_HEX not in item["prompt"].upper():
-            fail(
-                f"{owner}.prompt must explicitly carry the midlife background "
-                f"{VISUAL_BACKGROUND_HEX}."
-            )
+        for required in (
+            VISUAL_ART_STYLE,
+            "凝香",
+            "苏美",
+            "温和边框",
+            "积极",
+        ):
+            if required not in item["prompt"]:
+                fail(f"{owner}.prompt must explicitly carry {required}.")
         if visual_mode not in item["prompt"]:
             fail(f"{owner}.prompt must explicitly carry {visual_mode}.")
         if visual_mode == "micro_3d_editorial_illustration":
@@ -1434,11 +1459,10 @@ def validate_stage5(topic_dir: Path) -> dict[str, Any]:
             fail(
                 f"{owner}.supporting_colors must contain three or four HEX colors."
             )
-        if visual_mode == "micro_3d_editorial_illustration":
-            for color in [item["accent_color"], *supporting]:
-                match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
-                if match and match.group(0).upper() not in item["prompt"].upper():
-                    fail(f"{owner}.prompt must use illustration color {match.group(0)}.")
+        for color in [item["accent_color"], *supporting]:
+            match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
+            if match and match.group(0).upper() not in item["prompt"].upper():
+                fail(f"{owner}.prompt must use color {match.group(0)}.")
         if nonspace(item["prompt"]) <= 700:
             fail(f"{owner}.prompt must exceed 700 non-whitespace characters.")
     write_wechat_html(topic_dir, quiet=True)
@@ -1582,61 +1606,75 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         "scene_position",
         "information_position",
         "style_profile",
+        "art_style",
+        "cast_profile",
         "palette_profile",
-        "background_color",
-        "background_material",
-        "accent_color",
         "subject_profile",
+        "male_lead",
+        "female_lead",
+        "cast_mood",
+        "male_character_design",
         "female_character_design",
-        "female_emotional_signal",
+        "pair_emotional_signal",
         "human_subject",
         "reader_mirror",
         "emotional_action",
         "cover_subject",
         "cover_conflict",
         "scene_layer",
-        "information_question",
-        "information_form",
-        "information_layer",
-        "shared_anchor",
-        "transition_plan",
-        "transition_color_plan",
-        "transition_light_plan",
-        "transition_perspective_plan",
+        "environment_plan",
+        "depth_of_field_plan",
+        "lighting_plan",
+        "frame_style",
+        "frame_plan",
+        "accent_color",
         "headline_text",
         "safe_zone",
         "cover_text_strategy",
         "crop_survival_plan",
+        "negative_constraints",
         "prompt",
     ):
         require_text(cover, key, "cover_prompt")
     if cover["aspect_ratio"] != "2.35:1":
         fail("cover_prompt.aspect_ratio must be 2.35:1.")
-    if cover["cover_layout"] != "left_scene_right_info":
-        fail("cover_prompt.cover_layout must be left_scene_right_info.")
-    if cover["layout_ratio"] not in {"scene_45_info_55", "scene_50_info_50"}:
-        fail("cover_prompt.layout_ratio must keep the scene and information near half.")
-    if cover["scene_position"] != "left_half":
-        fail("cover_prompt.scene_position must be left_half.")
-    if cover["information_position"] != "right_half":
-        fail("cover_prompt.information_position must be right_half.")
-    if cover["style_profile"] != "scene_to_white_micro_3d":
-        fail("cover_prompt.style_profile must be scene_to_white_micro_3d.")
+    if cover["cover_layout"] != "full_scene_with_title":
+        fail("cover_prompt.cover_layout must be full_scene_with_title.")
+    if cover["layout_ratio"] != "scene_100_title_overlay":
+        fail("cover_prompt.layout_ratio must be scene_100_title_overlay.")
+    if cover["scene_position"] != "full_frame":
+        fail("cover_prompt.scene_position must be full_frame.")
+    if cover["information_position"] != "none":
+        fail("cover_prompt.information_position must be none.")
+    if cover["style_profile"] != VISUAL_ART_STYLE:
+        fail(f"cover_prompt.style_profile must be {VISUAL_ART_STYLE}.")
+    if cover["art_style"] != VISUAL_ART_STYLE:
+        fail(f"cover_prompt.art_style must be {VISUAL_ART_STYLE}.")
+    if cover["cast_profile"] != VISUAL_CAST_PROFILE:
+        fail(f"cover_prompt.cast_profile must be {VISUAL_CAST_PROFILE}.")
+    if cover["subject_profile"] != VISUAL_CAST_PROFILE:
+        fail(f"cover_prompt.subject_profile must be {VISUAL_CAST_PROFILE}.")
+    if cover["cast_mood"] != "sunny_upward_positive":
+        fail("cover_prompt.cast_mood must be sunny_upward_positive.")
+    if "凝香" not in cover["male_lead"] or "苏美" not in cover["female_lead"]:
+        fail("cover_prompt must name male lead 凝香 and female lead 苏美.")
+    if cover["frame_style"] != VISUAL_FRAME_STYLE:
+        fail(f"cover_prompt.frame_style must be {VISUAL_FRAME_STYLE}.")
     if cover["palette_profile"] != VISUAL_PALETTE_PROFILE:
         fail(
             "cover_prompt.palette_profile must be "
             f"{VISUAL_PALETTE_PROFILE}."
         )
-    if VISUAL_BACKGROUND_HEX not in cover["background_color"].upper():
-        fail(
-            "cover_prompt.background_color must use the midlife background "
-            f"{VISUAL_BACKGROUND_HEX}."
-        )
-    if VISUAL_BACKGROUND_HEX not in cover["prompt"].upper():
-        fail(
-            "cover_prompt.prompt must explicitly carry the midlife background "
-            f"{VISUAL_BACKGROUND_HEX}."
-        )
+    for required in (
+        VISUAL_ART_STYLE,
+        "凝香",
+        "苏美",
+        "温和边框",
+        "不要信息卡",
+        "积极",
+    ):
+        if required not in cover["prompt"]:
+            fail(f"cover_prompt.prompt must explicitly carry {required}.")
     if not re.search(r"#[0-9A-Fa-f]{6}\b", cover["accent_color"]):
         fail("cover_prompt.accent_color must include a six-digit HEX value.")
     cover_colors = require_list(
@@ -1651,19 +1689,10 @@ def validate_stage6(topic_dir: Path) -> dict[str, Any]:
         fail(
             "cover_prompt.supporting_colors must contain three or four HEX colors."
         )
-    if cover["subject_profile"] != "attractive_intellectual_woman_28_35":
-        fail(
-            "cover_prompt.subject_profile must be "
-            "attractive_intellectual_woman_28_35."
-        )
-    if cover["information_form"] not in {
-        "causal_chain",
-        "timeline",
-        "before_after",
-        "choice_path",
-        "relationship_map",
-    }:
-        fail("cover_prompt.information_form is invalid.")
+    for color in [cover["accent_color"], *cover_colors]:
+        match = re.search(r"#[0-9A-Fa-f]{6}\b", color)
+        if match and match.group(0).upper() not in cover["prompt"].upper():
+            fail(f"cover_prompt.prompt must use color {match.group(0)}.")
     if cover["headline_text"] != selected:
         fail("cover_prompt.headline_text must match selected_title.")
     if nonspace(cover["prompt"]) <= 700:
